@@ -7,7 +7,7 @@ pre : " <b> 4. </b> "
 ---
 
 #### Delete GitHub repository
-According to [GitHub Action billing](https://docs.github.com/en/billing/managing-billing-for-github-actions/about-billing-for-github-actions), usage is free for standard GitHub-hosted runners in public repositories, which is in this workshop senario. However, for private repositories, each GitHub account receives a certain amount of free minutes and storage for use with GitHub-hosted runners, depending on the account's plan. In summary, if you don't activate the GitHub Action flow, you are free of charge even for all workflow we have builded throughout this workshop.
+According to [GitHub Action billing page](https://docs.github.com/en/billing/managing-billing-for-github-actions/about-billing-for-github-actions), usage is free for standard GitHub-hosted runners in public repositories, which is in this workshop senario. However, for private repositories, each GitHub account receives a certain amount of free minutes and storage for use with GitHub-hosted runners, depending on the account's plan. In summary, if you don't activate the GitHub Action flow, you are free of charge even for all workflow we have builded throughout this workshop.
 
 1. Go to the Setting section.
 ![4](/images/4/s1a.png)

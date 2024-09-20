@@ -1,74 +1,74 @@
 ---
-title : "Set up"
+title : "Cài đặt"
 date : "`r Sys.Date()`"
 weight : 2
 chapter : false
 pre : " <b> 2.2. </b> "
 ---
 
-#### 1. Create a Template
+#### 1. Tạo Template
 
-Step 1: Go to the Fault Injection Service page on the console -> Experiment templates page -> Select Create experiment template -> Enter a name
+Bước 1: Truy cập trang Fault Injection Service trên console -> Trang Experiment templates -> Chọn Create experiment template -> Đặt tên
 ![2.2](/images/2/2.2/Picture1.png)
-Step 2: Add target
+Bước 2: Add target
 ![2.2](/images/2/2.2/Picture2.png)
-Step 3: Add action
+Bước 3: Add action
 
-Document parameters: From the JSON file.
+Document parameters: Từ file json.
 ![2.2](/images/2/2.2/Picture3.png)
-Document parameters execute the purpose of delaying 1 second for network traffic passing through port 8080, using 2 commands:
+Document parameters thực thi mục đích làm trễ 1 giây đối với lưu lượng mạng đi qua port 8080, nhờ 2 lệnh:
 
 ```bash
 netsh interface portproxy add v4tov4 listenport=8080 listenaddress=0.0.0.0 connectport=8080 connectaddress=127.0.0.1
 ```
-- Explain: Create a port proxy rule: forward traffic from the Internet to the loopback address on port 8080
+- Giải thích: Tạo rule port proxy: forward traffic từ Internet vào địa chỉ loopback port 8080 
 
 ```bash
 netsh interface portproxy set v4tov4 listenport=8080 listenaddress=0.0.0.0 connectport=8080 connectaddress=127.0.0.1 delay=1000
 ```
 
-- Explain: Edit rule from command 1: 1-second delay for forwarded traffic
+- Giải thích: Chỉnh sửa rule từ lệnh 1: độ trễ 1 giây cho traffic được forward
 
-Step 4: Review
+Bước 4: Kiểm tra lại
 ![2.2](/images/2/2.2/Picture4.png)
-Step 5: Choose IAM role (This role has Trusted Entity as FIS)
+Bước 5: Chọn IAM role (Role này có Trusted Entity là FIS)
 ![2.2](/images/2/2.2/Picture5.png)
-Step 6: Leave the remaining options as default. Select Create experiment template
+Bước 6: mặc định những cái còn lại. Chọn Create experiment template
 ![2.2](/images/2/2.2/Picture6.png)
-Enter 'Create':
+Nhập “Create”:
 ![2.2](/images/2/2.2/Picture7.png)
-Template created successfully:
+Tạo thành công template:
 ![2.2](/images/2/2.2/Picture8.png)
-Go to the Export section to see how to install this template using CMD:
+Vào mục Export để xem cách cài template này trên CMD:
 ![2.2](/images/2/2.2/Picture9.png)
 ```bash
 aws fis create-experiment-template ^
     --cli-input-json "{\"description\":\"Experiment to inject network latency on EC2 Windows instance\",\"targets\":{\"TargetInstances\":{\"resourceType\":\"aws:ec2:instance\",\"resourceArns\":[\"arn:aws:ec2:ap-northeast-2:590183822512:instance/i-06771d5fe9accdc18\"],\"selectionMode\":\"ALL\"}},\"actions\":{\"InjectNetworkLatency\":{\"actionId\":\"aws:ssm:send-command\",\"description\":\"Inject network latency on target EC2 instances\",\"parameters\":{\"documentArn\":\"arn:aws:ssm:ap-northeast-2::document/AWS-RunPowerShellScript\",\"documentParameters\":\"{\\\"commands\\\":[\\\"etsh interface portproxy add v4tov4 listenport=8080 listenaddress=0.0.0.0 connectport=8080 connectaddress=127.0.0.1\\\", \\\"netsh interface portproxy set v4tov4 listenport=8080 listenaddress=0.0.0.0 connectport=8080 connectaddress=127.0.0.1 delay=1000\\\", \\\"Write-Output 'Introduced 1000ms network latency using netsh.'\\\"]}\",\"duration\":\"PT20M\"},\"targets\":{\"Instances\":\"TargetInstances\"}}},\"stopConditions\":[{\"source\":\"none\"}],\"roleArn\":\"arn:aws:iam::590183822512:role/HaiAnh-FIS\",\"tags\":{\"Name\":\"inject network latency\"},\"experimentOptions\":{\"accountTargeting\":\"single-account\",\"emptyTargetResolutionMode\":\"fail\"}}"
 ```
 
-#### 2. Run the template
+#### 2. Chạy template
 
-Step 1: You can run the template on the CLI using the command
+Bước 1: Có thể chạy template trên CLI bằng lệnh
 
 ```bash
 aws fis start-experiment --experiment-template-id <template-id>
 ```
 
-In this case specifically:
+Trong trường này cụ thể là:
 ```bash
 aws fis start-experiment --experiment-template-id EXT9VzeDWJYFwcJN4
 ```
 
-Or run it on the console by going to the Experiment templates page, selecting the template you just created -> 'Start experiment':
+Hoặc chạy trên console bằng vào trang Experiment templates, chọn template vừa tạo -> “Start experiment” :
 ![2.2](/images/2/2.2/Picture10.png)
 ![2.2](/images/2/2.2/Picture11.png)
-Step 2: Enter 'start'
+Bước 2: Nhập “start”
 ![2.2](/images/2/2.2/Picture12.png)
-While running, check SSM:
+Trong khi chạy, check SSM:
 ![2.2](/images/2/2.2/Picture13.png)
-Go back to the FIS experiment page:
+Quay lại trang experiment của FIS:
 ![2.2](/images/2/2.2/Picture14.png)
-Check detailed Action:
+Kiểm tra Action chi tiết:
 ![2.2](/images/2/2.2/Picture15.png)
 Timeline:
 ![2.2](/images/2/2.2/Picture16.png)

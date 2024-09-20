@@ -78,7 +78,7 @@ Observe the steps:
 ![1.5](/images/1/1.5/Picture21.png)
 The following step to create an experiment template for CPU stress was observed to be successful:
 ![1.5](/images/1/1.5/Picture22.png)
-Wait 20 minutes to proceed with the experiment:
+Wait 20 minutes to proceed with the experiment (You can check in this Action log for more information: https://github.com/PNg-HA/AWS-Chaos-Experiments/actions/runs/10514440060/job/29132272786):
 ![1.5](/images/1/1.5/Picture23.png)
 ![1.5](/images/1/1.5/Picture24.png)
 ![1.5](/images/1/1.5/Picture25.png)

@@ -1,57 +1,58 @@
 ---
-title : "Detect & Remediate Network Latency with scripts"
+title : "Script phát hiện và giải quyết Network latency"
 date : "`r Sys.Date()`"
 weight : 4
 chapter : false
 pre : " <b> 2.4. </b> "
 ---
 
-#### Part 1: Detect
+### Part 1: Detect
 
-##### 1. Prerequisites
+#### 1. Yêu cầu
 
-As in the CPU Stress section
+Như mục CPU Stress
 
-##### 2. Set up
+#### 2. Thiết lập
 
-a. Edit the script
+##### a. Chỉnh sửa script
 
-Edit the code in the file scripts/detect_issues.py in the reference repository (mostlycloudysky/aws-chaos-experiments) to use credentials directly in the code. This is not recommended as it is not a best practice for security.
+Chỉnh sửa lại code file scripts/detect_issues.py trong repo tham khảo (mostlycloudysky/aws-chaos-experiments) để script dùng credential trong code, không khuyến khích làm theo vì không phải best practice cho security:
 
 ```python
 DEFAULT_AWS_REGION = "ap-northeast-2"
-DEFAULT_GITHUB_REPO = "PNg-HA/AWS-Chaos-Experiments" (syntax is user/repo)
+DEFAULT_GITHUB_REPO = "PNg-HA/AWS-Chaos-Experiments" (cú pháp là user/repo)
 DEFAULT_GITHUB_TOKEN = "ghp_**************************"
-DEFAULT_CLOUDWATCH_ALARM_NAME = "NetworkInAlarm" (there are 2 alarms for the network, but the reference repo uses NetworkIn)
+DEFAULT_CLOUDWATCH_ALARM_NAME = "NetworkInAlarm" (có 2 alarm cho network nhưng vì repo tham khảo dùng NetWorkIn)
 ```
 
-Script has been updated:
+Script đã sửa:
 ![2.4](/images/2/2.4/Picture1.png)
-b. Perform network latency detection
 
-Step 1: Run the script (simultaneously run the experiment with a network latency delay of 30 seconds due to the instance being too powerful).
+##### b. Thực hiện phát hiện network latency:
+
+Bước 1: Chạy script (song song chạy experiment network latency delay 30s do cấu hình instance quá mạnh)
 ![2.4](/images/2/2.4/Picture2.png)
-Step 2: Check the issue on your personal GitHub repo
+Bước 2: Kiểm tra issue trên github repo cá nhân
 ![2.4](/images/2/2.4/Picture3.png)
-Step 3: Observe the issue details.
+Bước 3: Quan sát chi tiết issue
 ![2.4](/images/2/2.4/Picture4.png)
-The Instance ID in the issue matches the EC instance ID mentioned above. This indicates that the instance experiencing network latency was successfully detected using the script.
+Instance ID trong issue giống EC instance id ở phần trên. Như vậy đã phát hiện instance bị trễ mạng bằng script thành công.
 
-#### Part 2: Remediate
+### Part 2: Remediate
 
-Reference: the scripts/remediate_network_latency.py file from the mostlycloudysky/aws-chaos-experiments repository.
+Tham khảo: file scripts/remediate_network_latency.py của repo mostlycloudysky/aws-chaos-experiments.
 
-##### 1. Edit the script
+#### 1. Chỉnh sửa script
 
-As in part 1, place the credentials into the script. Besides the region, repo, and token, this script also requires:
+Như phần 1, đặt credential vào script. Ngoài region, repo và token, script này cần:
 
 ```python
-DEFAULT_GITHUB_ISSUE_NUMBER: The sequence number of the issue to be resolved
+DEFAULT_GITHUB_ISSUE_NUMBER: số thứ tự mà issue muốn giải quyết
 ```
 
-Additionally, an environment variable is needed for the variable issue_body, but I will directly add this value as the default for the getenv() function.
+Ngoài ra cần một biến môi trường cho biến issue_body, nhưng mình sẽ thêm trực tiếp giá trị này vào mặc định cho hàm getenv().
 
-Script has been updated:
+Script sau khi sửa:
 
 ```python
 import os
@@ -114,22 +115,22 @@ if __name__ == "__main__":
     remediate()
 ```
 
-##### 2. Resolve the issue
+#### 2. Thực hiện khắc phục issue
 
-Run the script to fix issue #:
+Chạy script khắc phục issue #:
 ![2.4](/images/2/2.4/Picture5.png)
-The most important part of the script is running the AWSSupport-StartEC2RescueWorkflow document (see https://docs.aws.amazon.com/systems-manager-automation-runbooks/latest/userguide/automation-awssupport-startec2rescueworkflow.html). The script launches a new instance (with a name containing "rescue"), attaches the volume from the problematic instance, and then fixes it using the pre-configured script (variable "script"). However, it is confusing that the script only runs “echo Hello” instead of making any repairs.
+Phần quan trọng nhất của đoạn script là chạy document AWSSupport-StartEC2RescueWorkflow (tham khảo https://docs.aws.amazon.com/systems-manager-automation-runbooks/latest/userguide/automation-awssupport-startec2rescueworkflow.html). Đoạn script khởi chạy instance mới (tên có từ “rescue”), gắn volume của instance trong issue vào và sửa bằng script (biến “script”) đã cấu hình trước. Tuy nhiên, khó hiểu là script lại chỉ chạy “echo Hello” thay vì sửa bất cứ cái gì. 
 
-Check the logic through CloudTrail:
+Kiểm tra logic qua CloudTrail:
 ![2.4](/images/2/2.4/Picture6.png)
-Check the instance on the EC2 page. Initially, the EC2Rescue instance was created:
+Kiểm tra instance trên trang EC2. Lúc đầu, EC2Rescue instance được tạo:
 ![2.4](/images/2/2.4/Picture7.png)
-A few seconds later, start shutting down the instance in the issue to detach the volume:
+Vài giây sau, bắt đầu shut down instance trong issue để gỡ volume:
 ![2.4](/images/2/2.4/Picture8.png)
-Then, the instance for the experiment was stopped completely:
+Sau đó, instance cho experiment bị dừng hẳn:
 ![2.4](/images/2/2.4/Picture9.png)
-A few minutes later, the new instance shuts down, and the instance for the experiment is restarted.
+Vài phút sau, instance mới shutdown, instance cho experiment được mở lại:
 ![2.4](/images/2/2.4/Picture10.png)
-Monitor via CloudWatch:
+Montior NetworkIn qua CloudWatch:
 ![2.4](/images/2/2.4/Picture11.png)
-Thus, the detection and resolution of the network latency issue on the EC2 instance have been successfully implemented.
+Như vậy đã thực hiện phát hiện và khắc phục EC2 instance chậm độ trễ mạng thành công.
